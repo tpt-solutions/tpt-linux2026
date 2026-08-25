@@ -1,0 +1,108 @@
+# Design Document: `tpt-linux2026`
+
+**Status:** Draft / Proposal  
+**Date:** August 21, 2026  
+**Author:** [Your Name]  
+**Language:** Rust (Edition 2024)  
+**Target Ecosystem:** Linux Kernel, Wayland Compositors, Distro Tooling, System Administration  
+
+## 1. Executive Summary
+`tpt-linux2026` is a foundational Cargo workspace containing 10 highly specialized, deeply technical Rust libraries. Unlike typical Rust projects that focus on rewriting existing CLI tools, this workspace targets the deep, systemic friction points of the Linux ecosystem: power management, desktop display finalization (HDR/VRR), kernel-space testing, memory tiering, and declarative system migration. 
+
+The goal is not to build end-user applications, but to provide the **missing foundational plumbing** that distro maintainers, compositor developers, and system administrators need to make Linux a flawless daily driver in 2026.
+
+## 2. The PyO3 Question: Do we need it?
+**Short Answer:** No, the core libraries do *not* need to be PyO3. In fact, they shouldn't be.  
+**Nuanced Answer:** PyO3 should be used **strategically as an optional layer**, not as the foundation.
+
+Here is the rule for `tpt-linux2026`:
+1. **The Core is Pure Rust:** All 10 crates must be written in pure Rust. They should be `no_std` compatible where possible (especially for kernel-adjacent crates) and have zero Python dependencies. This ensures they can be linked into C, Go, or other Rust projects without dragging in the Python runtime.
+2. **The "Glue" is PyO3:** Linux sysadmins and distro maintainers live in Python (Ansible, Salt, cloud-init, custom admin scripts). For crates where the primary consumer is a *scripting environment* rather than a compiled daemon, we will create a companion `*-py` crate using PyO3.
+   * *Use PyO3 for:* `tpt-l-sat-solver` (package manager backends), `tpt-l-journal-oracle` (admin scripts), and `tpt-l-firmware-archaeologist` (reverse engineering scripts).
+   * *Avoid PyO3 for:* `tpt-l-volt-orchestrator`, `tpt-l-wayland-hdr-vrr-kit`, `tpt-l-kprobe-harness`, `tpt-l-pipe-weaver`. These are low-level, real-time, or daemon-level libraries where Python's GIL and runtime overhead would be a liability.
+
+## 3. Workspace Architecture
+
+The repository will use a Cargo workspace with a strict separation between internal utilities, the 10 public crates, and optional language bindings.
+
+```text
+tpt-linux2026/
+├── Cargo.toml                 # Workspace root
+├── DESIGN.md                  # This document
+├── internal/                  # Private, unpublished utility crates
+│   ├── tpt-l-ebpf-common/     # Shared eBPF macros and helpers (Aya)
+│   ├── tpt-l-sys-bindings/    # Shared bindgen C-headers (DRM, KMS, Kernel)
+│   └── tpt-l-math-core/       # Shared SAT solving and color-space math
+├── crates/                    # The 10 Public Libraries
+│   ├── tpt-l-volt-orchestrator/
+│   ├── tpt-l-wayland-hdr-vrr-kit/
+│   ├── tpt-l-kprobe-harness/
+│   ├── tpt-l-pager-thermo/
+│   ├── tpt-l-sandbox-bpf/
+│   ├── tpt-l-firmware-archaeologist/
+│   ├── tpt-l-pipe-weaver/
+│   ├── tpt-l-drift-trace/
+│   ├── tpt-l-sat-solver/
+│   └── tpt-l-journal-oracle/
+└── bindings/                  # Optional PyO3 / C-FFI wrappers
+    ├── tpt-l-sat-solver-py/
+    └── tpt-l-journal-oracle-py/
+```
+
+## 4. Crate Specifications & Technical Constraints
+
+### Group A: The Kernel & Hardware Layer
+*These crates interact directly with the kernel, eBPF, or hardware. They require strict `unsafe` hygiene.*
+
+*   **`tpt-l-volt-orchestrator`**: Event-driven power management. 
+    *   *Tech:* Uses `Aya` (pure Rust eBPF) to hook into scheduler tick and interrupt traces. Adjusts CPU freq via `cpufreq` sysfs without polling.
+*   **`tpt-l-pager-thermo`**: Intelligent memory tiering.
+    *   *Tech:* Uses `userfaultfd` and eBPF page-fault tracing to build access heatmaps. Migrates pages between RAM and NVMe swap via `madvise` and `migrate_pages`.
+*   **`tpt-l-kprobe-harness`**: User-space kernel testing.
+    *   *Tech:* Wraps `libbpf-rs` and `qemu` APIs. Uses `kprobes` to intercept and mock kernel functions during `cargo test`.
+*   **`tpt-l-firmware-archaeologist`**: Firmware parsing.
+    *   *Tech:* Pure Rust parsers for ACPI, UEFI, and Intel ME regions. Heavy use of `zerocopy` and `bytemuck` for safe binary parsing.
+
+### Group B: The Desktop & Media Layer
+*These crates require zero-copy memory management and real-time guarantees.*
+
+*   **`tpt-l-wayland-hdr-vrr-kit`**: Compositor-agnostic HDR/VRR.
+    *   *Tech:* Wraps DRM/KMS atomic commit APIs. Implements Rec. 2100 tone-mapping math and handles EDID parsing for color gamuts.
+*   **`tpt-l-pipe-weaver`**: Pro-audio DSP graph builder.
+    *   *Tech:* Wraps PipeWire's C API. Uses lock-free ring buffers (`crossbeam`) and real-time thread prioritization (`sched_setscheduler`).
+
+### Group C: The System & Packaging Layer
+*These crates are algorithmic heavyweights focused on filesystem and dependency math.*
+
+*   **`tpt-l-sandbox-bpf`**: Lightweight containerization.
+    *   *Tech:* Uses `LSM BPF` (Linux Security Modules) to enforce filesystem and network namespaces without the overhead of Docker/Flatpak.
+*   **`tpt-l-sat-solver`**: Cross-distro dependency math.
+    *   *Tech:* Implements a CDCL (Conflict-Driven Clause Learning) SAT solver. Exposes a pure Rust API and a PyO3 API for distro package managers.
+*   **`tpt-l-drift-trace`**: Mutable-to-declarative migration.
+    *   *Tech:* Hooks into `fanotify` and `auditd` via netlink sockets to track filesystem mutations and generate Nix/Guix expressions.
+
+### Group D: The UX & AI Layer
+*   **`tpt-l-journal-oracle`**: Local AI sysadmin.
+    *   *Tech:* Tails `systemd-journal` via the C API. Passes structured logs to a local `llama.cpp` backend (via `candle` or raw FFI) to generate plain-English diagnostics.
+
+## 5. Cross-Cutting Engineering Rules
+
+To ensure this project is actually adopted by the Linux community, it must adhere to strict engineering standards:
+
+1.  **Licensing:** The Linux kernel is GPLv2. While user-space Rust is typically MIT/Apache-2.0, if any crate is designed to be compiled *into* a kernel module (like `tpt-l-kprobe-harness`), that specific crate must be GPLv2 compatible. The rest will use standard MIT/Apache-2.0 dual licensing.
+2.  **`unsafe` Isolation:** For crates touching FFI (`tpt-l-wayland-hdr-vrr-kit`, `tpt-l-pipe-weaver`), all `unsafe` blocks must be confined to a single `ffi.rs` or `bindings.rs` module. The public API must be 100% safe Rust.
+3.  **No `tokio` in the Kernel Path:** Crates that run in real-time contexts or interact with eBPF (`tpt-l-volt-orchestrator`, `tpt-l-pager-thermo`) must be `async`-runtime agnostic or use `no_std` to avoid pulling in heavy async runtimes into constrained environments.
+4.  **CI/CD:** GitHub Actions must test against multiple kernel versions (using `qemu`), not just the latest Ubuntu. We need to ensure backward compatibility with LTS kernels (e.g., 6.6, 6.12).
+
+## 6. Phased Rollout Roadmap
+
+Building 10 deep-tech crates at once is a recipe for burnout. We will phase the development:
+
+*   **Phase 1: The "Quick Wins" (Months 1-3)**
+    *   Build `tpt-l-sat-solver` and `tpt-l-firmware-archaeologist`. These are pure algorithmic/parsing crates with no kernel dependencies. They will prove the workspace architecture and get early community feedback.
+*   **Phase 2: The "eBPF Revolution" (Months 4-7)**
+    *   Build `tpt-l-volt-orchestrator`, `tpt-l-pager-thermo`, and `tpt-l-sandbox-bpf`. This establishes the project's reputation in the modern Linux infrastructure space.
+*   **Phase 3: The "Final Bosses" (Months 8-12)**
+    *   Build `tpt-l-wayland-hdr-vrr-kit`, `tpt-l-kprobe-harness`, and `tpt-l-pipe-weaver`. These require deep domain knowledge and heavy FFI. 
+*   **Phase 4: The AI & Glue (Months 12+)**
+    *   Build `tpt-l-journal-oracle` and `tpt-l-drift-trace`, and finalize all PyO3 bindings.
