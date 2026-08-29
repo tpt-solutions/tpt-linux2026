@@ -1,0 +1,94 @@
+name: Publish
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_REGISTRIES_CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+
+jobs:
+  # Sanity-check before publishing anything.
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo publish --workspace --dry-run --allow-dirty
+
+  publish-phase-1:
+    name: Phase 1 — sat-solver, firmware-archaeologist
+    needs: verify
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        crate: [tpt-l-sat-solver, tpt-l-firmware-archaeologist]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
+
+  publish-phase-2:
+    name: Phase 2 — volt, pager, sandbox-bpf
+    needs: publish-phase-1
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        crate: [tpt-l-volt-orchestrator, tpt-l-pager-thermo, tpt-l-sandbox-bpf]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
+
+  publish-phase-3:
+    name: Phase 3 — wayland, kprobe-harness, pipe-weaver
+    needs: publish-phase-2
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        crate: [tpt-l-wayland-hdr-vrr-kit, tpt-l-kprobe-harness, tpt-l-pipe-weaver]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
+
+  publish-phase-4:
+    name: Phase 4 — journal-oracle, drift-trace
+    needs: publish-phase-3
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        crate: [tpt-l-journal-oracle, tpt-l-drift-trace]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
+
+  publish-py-wheels:
+    name: Publish Python wheels to PyPI
+    needs: publish-phase-4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install maturin
+      - name: Build & publish sat-solver wheel
+        run: maturin publish -m bindings/tpt-l-sat-solver-py/Cargo.toml --username __token__ --password "${{ secrets.PYPI_TOKEN }}"
+      - name: Build & publish firmware-archaeologist wheel
+        run: maturin publish -m bindings/tpt-l-firmware-archaeologist-py/Cargo.toml --username __token__ --password "${{ secrets.PYPI_TOKEN }}"
+      - name: Build & publish journal-oracle wheel
+        run: maturin publish -m bindings/tpt-l-journal-oracle-py/Cargo.toml --username __token__ --password "${{ secrets.PYPI_TOKEN }}"

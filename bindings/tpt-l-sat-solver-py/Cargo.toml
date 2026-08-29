@@ -1,0 +1,21 @@
+[package]
+name = "tpt-l-sat-solver-py"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Python bindings for the tpt-l-sat-solver CDCL SAT solver."
+keywords = ["sat", "solver", "pyo3", "python"]
+categories = ["algorithms"]
+readme = "README.md"
+
+[lib]
+name = "tpt_l_sat_solver_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+tpt-l-sat-solver = { path = "../../crates/tpt-l-sat-solver" }
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py38"] }

@@ -1,0 +1,20 @@
+[package]
+name = "tpt-l-journal-oracle"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/tpt-l-journal-oracle"
+description = "Tail systemd-journald and generate plain-English diagnostics via a local LLM backend."
+keywords = ["journald", "systemd", "llm", "diagnostics", "linux"]
+categories = ["os::linux-apis"]
+readme = "README.md"
+
+[dependencies]
+thiserror.workspace = true
+
+[features]
+default = []

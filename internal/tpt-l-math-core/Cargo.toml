@@ -1,0 +1,22 @@
+[package]
+name = "tpt-l-math-core"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Shared SAT-solving primitives and Rec. 2100 color-space math (no_std compatible)."
+keywords = ["sat", "color", "hdr", "math", "no-std"]
+categories = ["algorithms", "science"]
+readme = "README.md"
+
+[dependencies]
+libm = "0.2"
+
+[features]
+default = []
+std = []
+
+[dev-dependencies]

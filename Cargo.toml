@@ -1,0 +1,56 @@
+[workspace]
+resolver = "2"
+members = [
+    "internal/tpt-l-math-core",
+    "internal/tpt-l-ebpf-common",
+    "internal/tpt-l-sys-bindings",
+    "crates/tpt-l-sat-solver",
+    "crates/tpt-l-firmware-archaeologist",
+    "crates/tpt-l-volt-orchestrator",
+    "crates/tpt-l-pager-thermo",
+    "crates/tpt-l-sandbox-bpf",
+    "crates/tpt-l-wayland-hdr-vrr-kit",
+    "crates/tpt-l-kprobe-harness",
+    "crates/tpt-l-pipe-weaver",
+    "crates/tpt-l-journal-oracle",
+    "crates/tpt-l-drift-trace",
+    "bindings/tpt-l-sat-solver-py",
+    "bindings/tpt-l-firmware-archaeologist-py",
+]
+exclude = []
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+authors = ["TPT Solutions"]
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/tpt-solutions/tpt-linux2026"
+homepage = "https://github.com/tpt-solutions/tpt-linux2026"
+keywords = ["linux", "systems"]
+categories = ["os::linux-apis", "hardware-support"]
+readme = "README.md"
+
+[workspace.dependencies]
+# Internal crates
+tpt-l-ebpf-common = { path = "internal/tpt-l-ebpf-common", version = "0.1.0" }
+tpt-l-sys-bindings = { path = "internal/tpt-l-sys-bindings", version = "0.1.0" }
+tpt-l-math-core = { path = "internal/tpt-l-math-core", version = "0.1.0" }
+
+# Common external deps
+aya = "0.13"
+aya-log = "0.2"
+aya-log-common = "0.2"
+libbpf-rs = "0.24"
+thiserror = "2"
+anyhow = "1"
+bitflags = "2"
+log = "0.4"
+zerocopy = "0.8"
+bytemuck = "1"
+crossbeam = "0.8"
+nix = "0.29"
+pyo3 = "0.23"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

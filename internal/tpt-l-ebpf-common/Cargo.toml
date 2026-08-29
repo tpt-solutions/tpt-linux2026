@@ -1,0 +1,21 @@
+[package]
+name = "tpt-l-ebpf-common"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Shared eBPF macros and Aya loader helpers for the tpt-linux2026 workspace."
+keywords = ["ebpf", "aya", "bpf", "linux"]
+categories = ["os::linux-apis"]
+publish = false
+readme = "README.md"
+
+[dependencies]
+thiserror.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+aya = { workspace = true }
+aya-log = { workspace = true }

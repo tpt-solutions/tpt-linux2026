@@ -1,0 +1,22 @@
+[package]
+name = "tpt-l-wayland-hdr-vrr-kit"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/tpt-l-wayland-hdr-vrr-kit"
+description = "Compositor-agnostic HDR/VRR KMS kit: EDID parsing, Rec. 2100 tone-mapping, atomic VRR."
+keywords = ["wayland", "hdr", "vrr", "drm", "kms"]
+categories = ["graphics", "os::linux-apis"]
+readme = "README.md"
+
+[dependencies]
+tpt-l-sys-bindings = { workspace = true }
+tpt-l-math-core = { workspace = true }
+thiserror.workspace = true
+
+[features]
+default = []

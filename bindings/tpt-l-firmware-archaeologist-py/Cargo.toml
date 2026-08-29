@@ -1,0 +1,21 @@
+[package]
+name = "tpt-l-firmware-archaeologist-py"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Python bindings for tpt-l-firmware-archaeologist firmware parsers."
+keywords = ["firmware", "acpi", "uefi", "pyo3"]
+categories = ["parsing"]
+readme = "README.md"
+
+[lib]
+name = "tpt_l_firmware_archaeologist_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+tpt-l-firmware-archaeologist = { path = "../../crates/tpt-l-firmware-archaeologist" }
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py38"] }

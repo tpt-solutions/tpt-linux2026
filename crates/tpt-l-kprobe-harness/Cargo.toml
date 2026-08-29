@@ -1,0 +1,24 @@
+[package]
+name = "tpt-l-kprobe-harness"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+# Triple-licensed: GPL-2.0 added for kernel-module compatibility.
+license = "MIT OR Apache-2.0 OR GPL-2.0"
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/tpt-l-kprobe-harness"
+description = "User-space kernel testing via kprobes: a QEMU-backed harness with a kernel-function mock framework."
+keywords = ["kprobe", "qemu", "testing", "bpf", "linux"]
+categories = ["os::linux-apis", "development-tools::testing"]
+readme = "README.md"
+
+[dependencies]
+thiserror.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+libbpf-rs = "0.24"
+
+[features]
+default = []

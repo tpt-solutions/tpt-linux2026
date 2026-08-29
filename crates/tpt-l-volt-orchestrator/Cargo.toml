@@ -1,0 +1,25 @@
+[package]
+name = "tpt-l-volt-orchestrator"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/tpt-l-volt-orchestrator"
+description = "Event-driven, eBPF-powered CPU power management via cpufreq sysfs without polling."
+keywords = ["power", "cpufreq", "ebpf", "scheduler", "linux"]
+categories = ["os::linux-apis"]
+readme = "README.md"
+
+[dependencies]
+tpt-l-ebpf-common = { workspace = true }
+thiserror.workspace = true
+log.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+tpt-l-ebpf-common = { workspace = true }
+
+[features]
+default = []

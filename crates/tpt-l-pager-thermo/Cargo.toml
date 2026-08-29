@@ -1,0 +1,21 @@
+[package]
+name = "tpt-l-pager-thermo"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/tpt-l-pager-thermo"
+description = "Intelligent memory tiering via userfaultfd and eBPF page-fault heatmaps."
+keywords = ["memory", "tiering", "userfaultfd", "ebpf", "linux"]
+categories = ["os::linux-apis"]
+readme = "README.md"
+
+[dependencies]
+tpt-l-ebpf-common = { workspace = true }
+thiserror.workspace = true
+
+[features]
+default = []

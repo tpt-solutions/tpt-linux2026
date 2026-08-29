@@ -1,0 +1,21 @@
+[package]
+name = "tpt-l-journal-oracle-py"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+description = "Python bindings for tpt-l-journal-oracle systemd-journal diagnostics."
+keywords = ["journald", "llm", "diagnostics", "pyo3", "python"]
+categories = ["os::linux-apis"]
+readme = "README.md"
+
+[lib]
+name = "tpt_l_journal_oracle_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+tpt-l-journal-oracle = { path = "../../crates/tpt-l-journal-oracle" }
+pyo3 = { version = "0.23", features = ["extension-module", "abi3-py38"] }

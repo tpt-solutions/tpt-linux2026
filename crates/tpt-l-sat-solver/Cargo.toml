@@ -1,0 +1,28 @@
+[package]
+name = "tpt-l-sat-solver"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation = "https://docs.rs/tpt-l-sat-solver"
+description = "Conflict-Driven Clause Learning (CDCL) SAT solver with a cross-distro dependency resolution API."
+keywords = ["sat", "solver", "cdcl", "dependencies", "satellite"]
+categories = ["algorithms", "science"]
+readme = "README.md"
+
+[dependencies]
+tpt-l-math-core = { workspace = true }
+thiserror.workspace = true
+
+[dev-dependencies]
+criterion = "0.5"
+
+[[bench]]
+name = "solve_bench"
+harness = false
+
+[features]
+default = []
