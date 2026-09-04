@@ -82,7 +82,7 @@ jobs:
 
       - name: Cache QEMU kernel image
         id: kernel-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.qemu-kernels/${{ matrix.kernel }}
           key: qemu-kernel-${{ matrix.kernel }}-v1
