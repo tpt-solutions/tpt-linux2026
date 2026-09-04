@@ -19,7 +19,7 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo publish --workspace --dry-run --allow-dirty
 
@@ -32,7 +32,7 @@ jobs:
       matrix:
         crate: [tpt-l-sat-solver, tpt-l-firmware-archaeologist]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
 
@@ -45,7 +45,7 @@ jobs:
       matrix:
         crate: [tpt-l-volt-orchestrator, tpt-l-pager-thermo, tpt-l-sandbox-bpf]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
 
@@ -58,7 +58,7 @@ jobs:
       matrix:
         crate: [tpt-l-wayland-hdr-vrr-kit, tpt-l-kprobe-harness, tpt-l-pipe-weaver]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
 
@@ -71,7 +71,7 @@ jobs:
       matrix:
         crate: [tpt-l-journal-oracle, tpt-l-drift-trace]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - run: cargo publish -p ${{ matrix.crate }} --token "${CRATES_IO_TOKEN}"
 
@@ -80,7 +80,7 @@ jobs:
     needs: publish-phase-4
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@stable
       - uses: actions/setup-python@v7
         with:
