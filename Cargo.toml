@@ -37,10 +37,10 @@ tpt-l-sys-bindings = { path = "internal/tpt-l-sys-bindings", version = "0.1.0" }
 tpt-l-math-core = { path = "internal/tpt-l-math-core", version = "0.1.0" }
 
 # Common external deps
-aya = "0.13"
-aya-log = "0.2"
+aya = "0.14"
+aya-log = "0.3"
 aya-log-common = "0.2"
-libbpf-rs = "0.24"
+libbpf-rs = "0.27"
 thiserror = "2"
 anyhow = "1"
 bitflags = "2"
@@ -48,8 +48,8 @@ log = "0.4"
 zerocopy = "0.8"
 bytemuck = "1"
 crossbeam = "0.8"
-nix = "0.29"
-pyo3 = "0.23"
+nix = "0.31"
+pyo3 = "0.29"
 
 [profile.release]
 lto = "thin"
